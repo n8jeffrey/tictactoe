@@ -76,7 +76,7 @@ function emptySquares() {
 }
 
 function bestSpot() {
-  return emptySquares()[0];
+  return minimax(origBoard, aiPlayer).index;
 }
 
 function checkTie() {
@@ -89,4 +89,54 @@ function checkTie() {
     return true;
   }
   return false;
+}
+
+function minimax(newBoard, player) {
+  var availspots = emptySquares(newBoard);
+
+  if (checkWin(newBoard, player)) {
+    return { score: -10 };
+  } else if (checkWin(newBoard, aiPlayer)) {
+    return { score: 20 };
+  } else if (availspots.length === 0) {
+    return { score: 0 };
+  }
+  var moves = [];
+  for (var i = 0; i < availspots.length; i++) {
+    var move = {};
+    move.index = newBoard[availspots[i]];
+    newBoard[availspots[i]] = player;
+
+    if (player == aiPlayer) {
+      var result = minimax(newBoard, huPlayer);
+      move.score = result.score;
+    } else {
+      var result = minimax(newBoard, aiPlayer);
+      move.score = result.score;
+    }
+
+    newBoard[availspots[i]] = move.index;
+
+    moves.push(move);
+  }
+  var bestMove;
+  if (player === aiPlayer) {
+    var bestScore = -10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i].score > bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i;
+      }
+    }
+  } else {
+    var bestScore = 10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i].score < bestScore) {
+        bestScore = moves[i].score;
+        bestMove = i;
+      }
+    }
+  }
+
+  return moves[bestMove];
 }
